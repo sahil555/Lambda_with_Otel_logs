@@ -1,8 +1,5 @@
 # "org" ensures this Service is used with the correct Serverless Framework Access Key.
-org: sahil kureel
-# "app" enables Serverless Framework Dashboard features and sharing them with other Services.
-app: textextractawsocrinfo
-# "service" is the name of this project. This will also be added to your AWS resource names.
+org: 555kureel
 service: OCRExtractionLlm
 
 stages:
@@ -10,23 +7,16 @@ stages:
     params:
       tableName: "users-table-${sls:stage}"
 
-plugins:
-  - serverless-wsgi
-
 custom:
   wsgi:
     app: app.app
-    # serverless-wsgi decides whether to pip-install requirements itself by
-    # checking for "serverless-python-requirements" in the plugins list; with
-    # that plugin removed this must be pinned false so wsgi defers to the
-    # built-in python requirements packaging (activated by custom.pythonRequirements below).
     packRequirements: false
-  # Built-in python requirements packaging activates on this key.
-  pythonRequirements: {}
+  pythonRequirements:
+    dockerizePip: true
 
 provider:
   name: aws
-  runtime: python3.14
+  runtime: python3.12
   architecture: arm64
   # Uncomment to easily set up a custom domain. Read the docs for more details:
   # https://www.serverless.com/framework/docs/providers/aws/guide/domains
@@ -57,6 +47,10 @@ functions:
           path: /{proxy+}
           method: ANY
 
+package:
+  patterns:
+    - '!.virtual_lambda/**'
+
 resources:
   Resources:
     UsersTable:
@@ -72,3 +66,7 @@ resources:
           ReadCapacityUnits: 1
           WriteCapacityUnits: 1
         TableName: ${param:tableName}
+
+plugins:
+  - serverless-offline
+  - serverless-wsgi

@@ -1,0 +1,22 @@
+receivers:
+  otlp:
+    protocols:
+      grpc:
+      http:
+
+exporters:
+  prometheusremotewrite:
+    endpoint: "https://aps-workspaces.<region>://<workspace-id>/api/v1/remote_write"
+    auth:
+      authenticator: sigv4
+
+extensions:
+  sigv4:
+    region: "<region>"
+
+service:
+  extensions: [sigv4]
+  pipelines:
+    metrics:
+      receivers: [otlp]
+      exporters: [prometheusremotewrite]
